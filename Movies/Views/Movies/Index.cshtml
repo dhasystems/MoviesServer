@@ -1,0 +1,150 @@
+﻿
+@{
+    ViewBag.Title = "Movie Collection";
+
+}
+@{
+    var user = Session["username"];
+    if (user == null)
+    {
+        Response.Redirect("Home");
+    }
+}
+
+<a class="btn btn-success" style="margin-bottom:10px" onclick="PopupForm('@Url.Action("AddOrEdit","Movies")')"><i class="fa fa-plus"></i> Add New</a>
+<a class="btn btn-primary" style="margin-bottom:10px" href="@Url.Action("LogOut","Movies")"><i class="fa fa-sign-out"></i> Log Out</a>
+<table id="movieTable" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Movie ID</th>
+            <th>Title</th>
+            <th>Year</th>
+            <th>TMDB ID</th>
+            <th>Genre</th>
+            <th>Quality</th>
+            <th>Type</th>
+          
+            <th>Action</th>
+        </tr>
+    </thead>
+
+</table>
+
+<link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+@section scripts
+    {
+
+    <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        var Popup, dataTable;
+        $(document).ready(function () {
+            dataTable =  $('#movieTable').DataTable({
+                "ajax": {
+                    "url": "/Movies/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+
+                //"columnDefs": [{
+                //    "targets": [7],
+                //    "visible": false,
+                //    "searchable":false
+                //}],
+
+                "columns": [
+                    { "data": "id" },
+                    { "data": "title" },
+                    { "data": "year" },
+                    { "data": "tmdb_id" },
+                    { "data": "genre" },
+                    { "data": "quality" },
+                    { "data": "type" },  
+                  
+                    {"data": "id", "render": function (data) {
+                          return "<a class='btn btn-default btn-sm' onclick=PopupForm('@Url.Action("AddOrEdit","Movies")/" + data + "')><i class='fa fa-pencil'></i> Edit</a><a class='btn btn-danger btn-sm' style='margin-left:5px' onclick=Delete("+data+")><i class='fa fa-trash'></i> Delete</a>";
+                        },
+                    }
+                ],
+                "order": [[
+                    0, 'desc'
+                ]],
+                "stateSave": true
+
+            });
+        });
+
+  function PopupForm(url) {
+            var formDiv = $('<div/>');
+            $.get(url)
+            .done(function (response) {
+                formDiv.html(response);
+
+                Popup = formDiv.dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    title: 'New Movie Details',
+                    height: 500,
+                    width: 700,
+                    close: function () {
+                        Popup.dialog('destroy').remove();
+                    }
+
+                });
+            });
+        }
+
+        function SubmitForm(form) {
+            $.validator.unobtrusive.parse(form);
+            if($(form).valid()){
+                $.ajax({
+                    type : "POST",
+                    url : form.action,
+                    data : $(form).serialize(),
+                    success : function (data) {
+                        if(data.success)
+                        {
+                            Popup.dialog('close');
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message,{
+                                globalPosition :"top center",
+                                className : "success"
+                            })
+
+                        }
+                    }
+                });
+            }
+            return false;
+        }
+
+        function Delete(id) {
+            if(confirm('Are You Sure to Delete this Employee Record ?'))
+            {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete","Movies")/' + id,
+                    success: function (data) {
+                        if (data.success)
+                        {
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                className: "success"
+                            })
+
+                        }
+                    }
+
+                });
+            }
+        }
+
+    </script>
+}
+
+
+

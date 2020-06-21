@@ -1,0 +1,86 @@
+﻿
+@{
+    ViewBag.Title = "Movie Collection";
+}
+<div>
+    @{Html.RenderPartial("_Navigation"); }
+</div>
+
+                <table id="movieTable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Movie ID</th>
+                            <th>Title</th>
+                            <th>Year</th>
+                            <th>TMDB ID</th>
+                            <th>Genre</th>
+                            <th>Quality</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Movie ID</th>
+                            <th>Title</th>
+                            <th>Year</th>
+                            <th>TMDB ID</th>
+                            <th>Genre</th>
+                            <th>Quality</th>
+                            <th>Type</th>
+                        </tr>
+                    </tfoot>
+
+                </table>
+
+<link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet" />
+
+@section scripts
+    {
+
+    <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#movieTable').DataTable({
+                "ajax": {
+                    "url": "/Home/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "id", "name": "id" },
+                    { "data": "title", "name": "title" },
+                    { "data": "year", "name": "year" },
+                    { "data": "tmdb_id", "name": "tmdb_id" },
+                    { "data": "genre", "name": "genre" },
+                    { "data": "quality", "name": "quality" },
+                    { "data": "type", "name": "type" }
+                    //{ "data": "id", "name": "id" },
+                    //{ "data": "title", "name": "title" },
+                    //{ "data": "year", "name": "year" },
+                    //{ "data": "tmdb_id", "name": "tmdb_id" },
+                    //{ "data": "genre", "name": "genre" },
+                    //{ "data": "quality", "name": "quality" },
+                    //{ "data": "type", "name": "type" }
+                ],
+                "serverSide": "true",
+                "order": [0, "desc"],
+                "processing": "true",
+                "language": {
+                    "processing": "processing... please wait."
+                }
+                //"order": [[
+                //    0, 'desc'
+                //]],
+                //"stateSave": true
+            });
+        });
+
+    </script>
+}
+
+
+
+
+
+
